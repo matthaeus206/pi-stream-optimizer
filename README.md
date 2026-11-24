@@ -11,7 +11,16 @@ Turn a Raspberry Pi 4 Model B or Pi 5 Model B into a console-only Moonlight Qt c
 
 ## Install and pair
 
-From a checkout of this repository on the Pi:
+On the Pi, install Git if needed, then clone the repository and enter its directory.
+
+```bash
+sudo apt update
+sudo apt install -y git
+git clone https://github.com/matthaeus206/pi-stream-optimizer.git
+cd pi-stream-optimizer
+```
+
+Copy the configuration template and run the installer.
 
 ```bash
 mkdir -p ~/.config/pi-stream-optimizer
