@@ -132,7 +132,10 @@ ExecStart=/bin/sh -ec 'found=0; for policy in /sys/devices/system/cpu/cpufreq/po
 WantedBy=multi-user.target
 UNIT
 
-launch=$moonlight
+launcher=/usr/local/libexec/pi-stream-moonlight-launch
+install -d -m 0755 /usr/local/libexec
+write_file "$launcher" 0755 < "$PROJECT_DIR/moonlight-launch.sh"
+launch="$launcher $moonlight"
 if [[ -n $SUNSHINE_HOST ]]; then
     launch+=" stream --resolution 3840x2160 --fps 60 --bitrate $BITRATE_KBPS"
     launch+=" --video-codec HEVC --video-decoder hardware -- \"$SUNSHINE_HOST\" \"$SUNSHINE_APP\""
@@ -150,6 +153,8 @@ StartLimitBurst=5
 User=$APPLIANCE_USER
 SupplementaryGroups=video render input audio
 PAMName=login
+RuntimeDirectory=pi-stream-moonlight
+RuntimeDirectoryMode=0700
 TTYPath=/dev/tty1
 StandardInput=tty
 StandardOutput=journal

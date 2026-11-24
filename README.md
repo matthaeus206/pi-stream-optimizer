@@ -66,11 +66,25 @@ On the Pi, check these after reboot:
 
 ```bash
 systemctl status pi-stream-moonlight pi-stream-performance
-journalctl -b -u pi-stream-moonlight
+sudo journalctl -b -u pi-stream-moonlight --no-pager
+sudo journalctl -b --no-pager _COMM=moonlight-qt
 iw dev
 iw dev wlan0 get power_save # Substitute your connected interface
 vcgencmd get_throttled
 ```
+
+If Moonlight reports `Cannot create window: no screens available`, turn on the HDMI display, select the Pi's input and check what the kernel detects:
+
+```bash
+for connector in /sys/class/drm/card*-HDMI-A-*; do
+    [ -r "$connector/status" ] || continue
+    printf '%s: ' "${connector##*/}"
+    cat "$connector/status"
+    head -n 3 "$connector/modes"
+done
+```
+
+The launcher waits for an HDMI connector to report `connected` with an advertised mode, then directs Qt to that connector's DRM card. If no connector shows up, check that full KMS is enabled. If the connector stays `disconnected` or has no modes, try HDMI0, a different cable, or a different display input. After connecting the display, run `sudo systemctl reset-failed pi-stream-moonlight && sudo systemctl restart pi-stream-moonlight`.
 
 During an actual stream, verify the negotiated codec, resolution and FPS in Moonlight's performance overlay or logs and confirm hardware decode in the logs. Check for frame loss, throttling, SSH access and controller reconnects. Lower the bitrate if Wi-Fi cannot sustain it with headroom. On Pi 4, the current [upstream Pi guide](https://github.com/moonlight-stream/moonlight-docs/wiki/Installing-Moonlight-Qt-on-Raspberry-Pi-4) also lists a GPU memory workaround for decoder errors at 4K60. Evaluate that on the affected OS and kernel before changing firmware memory settings.
 
